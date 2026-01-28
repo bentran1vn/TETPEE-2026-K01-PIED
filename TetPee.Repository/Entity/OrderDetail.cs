@@ -9,6 +9,8 @@ public class OrderDetail: BaseEntity<Guid>, IAuditableEntity
     
     public Guid ProductId { get; set; }
     public Product Product { get; set; }
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; } // Price at the time of order
     
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }

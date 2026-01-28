@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using TetPee.Repository;
 
 namespace TetPee.Api.Controllers;
 
@@ -6,26 +7,28 @@ namespace TetPee.Api.Controllers;
 [Route("[controller]")]
 public class WeatherForecastController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+    private readonly AppDbContext _dbContext;
 
-    private readonly ILogger<WeatherForecastController> _logger;
-
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    // Use dependency injection to get the AppDbContext
+    public WeatherForecastController(AppDbContext dbContext)
     {
-        _logger = logger;
+        _dbContext = dbContext;
     }
 
     [HttpGet(Name = "GetWeatherForecast")]
     public IEnumerable<WeatherForecast> Get()
     {
+        var canConnect = _dbContext.Database.CanConnect();
+        if (!canConnect)
+        {
+            throw new Exception("Unable to connect to the database.");
+        }
+
         return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                 TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+                Summary = "Sample Summary" // Replace with actual logic
             })
             .ToArray();
     }
