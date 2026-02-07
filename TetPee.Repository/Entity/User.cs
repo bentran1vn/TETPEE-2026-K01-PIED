@@ -14,7 +14,7 @@ public class User: BaseEntity<Guid>, IAuditableEntity
     public string Role { get; set; } = "User"; // User, Seller, Admin
     public bool IsVerify { get; set; } = false; // Khi user register, thì phải verify email hợp lệ
     public int VerifyCode { get; set; } // Mã verify gửi về email
-    // public string DateOfBirth { get; set; }
+    public string? DateOfBirth { get; set; } = null;
     
     public Seller? Seller { get; set; }
     public ICollection<Order> Orders { get; set; } = new List<Order>();
