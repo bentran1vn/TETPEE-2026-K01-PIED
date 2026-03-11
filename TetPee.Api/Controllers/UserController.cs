@@ -45,7 +45,17 @@ public class UserController : ControllerBase
     [HttpGet("")]
     public IActionResult GetUsers([FromQuery] string? searchTerm)
     {
-        var users = _dbContext.Users.ToList();
+        List<User> users;
+        if (searchTerm != null)
+        {
+             users = _dbContext.Users.Where(x => x.FirstName.Contains(searchTerm)).ToList();
+        }
+        else
+        {
+            users = _dbContext.Users.ToList();
+        }
+        
+        // throw new Exception("Get Users Errors");
         return Ok(users);
     }
     
@@ -83,6 +93,8 @@ public class UserController : ControllerBase
             LastName = request.LastName,
             HashedPassword = request.Password // Chưa hash, chỉ demo
         };
+        
+        Console.WriteLine(user.VerifyCode);
         
         _dbContext.Users.Add(user);
         

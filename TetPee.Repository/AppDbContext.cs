@@ -5,10 +5,21 @@ namespace TetPee.Repository;
 
 public class AppDbContext : DbContext
 {
-    public static Guid UserId1 = Guid.NewGuid();
-    public static Guid UserId2 = Guid.NewGuid();
+    public static Guid UserId1 = Guid.NewGuid(); // Seller
+    public static Guid UserId2 = Guid.NewGuid(); // User
+    
+    public static Guid SellerId1 = Guid.NewGuid();
+    
     public static Guid CategoryParentId1 = Guid.NewGuid();
     public static Guid CategoryParentId2 = Guid.NewGuid();
+    
+    public static Guid ProductId1 = Guid.NewGuid();
+    public static Guid ProductId2 = Guid.NewGuid();
+    public static Guid ProductId3 = Guid.NewGuid();
+    public static Guid ProductId4 = Guid.NewGuid();
+    
+    public static Guid OrderId1 = Guid.NewGuid();
+    public static Guid OrderId2 = Guid.NewGuid();
     
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) { }
@@ -45,6 +56,9 @@ public class AppDbContext : DbContext
             builder.Property(u => u.LastName)
                 .IsRequired()
                 .HasMaxLength(100);
+
+            // builder.Property(u => u.VerifyCode)
+            //     .IsRequired();
             
             // ImageUrl - nullable, max 500 characters (URL)
             builder.Property(u => u.ImageUrl)
@@ -96,6 +110,15 @@ public class AppDbContext : DbContext
                     LastName = "Tran",
                     HashedPassword = "hashed_password_1",
                 }
+                ,new ()
+                {
+                    Id = new Guid("0101b85c-b450-4bb9-8226-0d02b0eb6e03"),
+                    Email = "tan182207@gmail.com",
+                    FirstName = "Tan",
+                    LastName = "Tran",
+                    HashedPassword = "hashed_password_1",
+                },
+                
             };
             
             for(int i = 0; i < 1000; i++)
@@ -132,11 +155,20 @@ public class AppDbContext : DbContext
             {
                 new ()
                 {
+                    Id = SellerId1,
+                    TaxCode = "TAXCODE123",
+                    CompanyName = "ABC Company",
+                    CompanyAddress = "123 Main St, Cityville",
+                    // UserId = 
+                    UserId = UserId1
+                },
+                new ()
+                {
                     Id = Guid.NewGuid(),
                     TaxCode = "TAXCODE123",
                     CompanyName = "ABC Company",
                     CompanyAddress = "123 Main St, Cityville",
-                    UserId = UserId1
+                    UserId = new Guid("0101b85c-b450-4bb9-8226-0d02b0eb6e03")
                 }
             };
             
@@ -182,6 +214,125 @@ public class AppDbContext : DbContext
             };
             
             builder.HasData(categories);
+        });
+        
+        modelBuilder.Entity<Product>(builder =>
+        {
+            builder.Property(p => p.Name)
+                .IsRequired()
+                .HasMaxLength(200);
+            
+            builder.Property(p => p.Description)
+                .IsRequired()
+                .HasMaxLength(1000);
+            
+            builder.Property(p => p.UrlImage)
+                .IsRequired()
+                .HasMaxLength(500);
+            
+            builder.Property(p => p.Price)
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
+
+            var products = new List<Product>()
+            {
+                new Product()
+                {
+                    Id = ProductId1,
+                    Name = "Áo Thun Nam",
+                    Description = "Áo thun nam chất liệu cotton cao cấp, thoáng mát, phù hợp cho mọi hoạt động hàng ngày.",
+                    UrlImage = "https://example.com/images/ao_thun_nam.jpg",
+                    Price = 199000m,
+                    SellerId = SellerId1
+                },
+                new Product()
+                {
+                    Id = ProductId2,
+                    Name = "Quần Jeans Nữ",
+                    Description = "Quần jeans nữ dáng ôm, tôn dáng, chất liệu denim co giãn, phù hợp cho mọi dịp.",
+                    UrlImage = "https://example.com/images/quan_jeans_nu.jpg",
+                    Price = 399000m,
+                    SellerId = SellerId1
+                },
+                new Product()
+                {
+                    Id = ProductId3,
+                    Name = "Áo Sơ Mi Nam",
+                    Description = "Áo sơ mi nam công sở, thiết kế hiện đại, chất liệu vải cao cấp, thoáng mát.",
+                    UrlImage = "https://example.com/images/ao_so_mi_nam.jpg",
+                    Price = 299000m,
+                    SellerId = SellerId1
+                },
+                new Product()
+                {
+                    Id = ProductId4,
+                    Name = "Chân Váy Nữ",
+                    Description = "Chân váy nữ xòe, thiết kế trẻ trung, chất liệu vải mềm mại, phù hợp cho mọi dịp.",
+                    UrlImage = "https://example.com/images/chan_vay_nu.jpg",
+                    Price = 249000m,
+                    SellerId = SellerId1
+                }
+            };
+            
+            builder.HasData(products);
+        });
+
+        modelBuilder.Entity<Order>(builder =>
+        {
+            var orders = new List<Order>()
+            {
+                new Order()
+                {
+                    Id = OrderId1,
+                    UserId = UserId2,
+                    Address = "Bien Hoa, Dong Nai",
+                    TotalAmount = 100000m,
+                    Status = "Completed"
+                },
+                new Order()
+                {
+                    Id = OrderId2,
+                    UserId = UserId2,
+                    Address = "Bien Hoa, Dong Nai",
+                    TotalAmount = 100000m,
+                    Status = "Completed"
+                }
+            };
+            
+            builder.HasData(orders);
+        });
+        
+        modelBuilder.Entity<OrderDetail>(builder =>
+        {
+            var orderDetails = new List<OrderDetail>()
+            {
+                new OrderDetail()
+                {
+                    Id = Guid.NewGuid(),
+                    OrderId = OrderId1,
+                    ProductId = ProductId1,
+                    Quantity = 2,
+                    UnitPrice = 199000m
+                },
+                new OrderDetail()
+                {
+                    Id = Guid.NewGuid(),
+                    OrderId = OrderId1,
+                    ProductId = ProductId2,
+                    Quantity = 1,
+                    UnitPrice = 399000m
+                },
+                new OrderDetail()
+                {
+                    Id = Guid.NewGuid(),
+                    OrderId = OrderId2,
+                    ProductId = ProductId3,
+                    Quantity = 1,
+                    UnitPrice = 299000m
+                }
+            };
+            
+            builder.HasData(orderDetails);
         });
     }
 }
