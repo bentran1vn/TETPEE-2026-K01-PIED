@@ -12,9 +12,12 @@ public class UserController : ControllerBase
     private readonly AppDbContext _dbContext;
     // cai nay nang cao luc sau se giai thich
 
-    public UserController(AppDbContext dbContext)
+    private readonly IService _userService;
+    
+    public UserController(AppDbContext dbContext, IService userService)
     {
         _dbContext = dbContext;
+        _userService = userService;
     }
     
     // HTTP METHOD: GET, POST, DELETE, PUT, PATCH
@@ -43,28 +46,17 @@ public class UserController : ControllerBase
     // delete user by id: DELETE http://localhost:5000/User/{id}
     
     [HttpGet("")]
-    public IActionResult GetUsers([FromQuery] string? searchTerm)
+    public async Task<IActionResult> GetUsers(string? searchTerm, int pageSize = 10, int pageIndex = 1)
     {
-        List<User> users;
-        if (searchTerm != null)
-        {
-             users = _dbContext.Users.Where(x => x.FirstName.Contains(searchTerm)).ToList();
-        }
-        else
-        {
-            users = _dbContext.Users.ToList();
-        }
-        
-        // throw new Exception("Get Users Errors");
+        var users = await _userService.GetUsers(searchTerm, pageSize, pageIndex);
         return Ok(users);
     }
     
     [HttpGet("{id}")]
-    public IActionResult GetUserById([FromRoute] Guid id)
+    public async Task<IActionResult> GetUserById(Guid id)
     {
-        // var users = _dbContext.Users.ToList();
-        // return Ok(users);
-        return Ok(id);
+        var user = await _userService.GetUserById(id);
+        return Ok(user);
     }
     
     [HttpPut("{id}")]
@@ -103,3 +95,13 @@ public class UserController : ControllerBase
         return Ok("Create user successfully");
     }
 }
+
+// Get all Category (Không phân trang, short theo bảng chữ cái của Name),
+                // và Map ra response như sau (Id, Name)
+// Get all Children Category By Category Id, (Không phân trang, short theo bảng chữ cái của Name),
+                // và Map ra response như sau (Id, Name)
+// Get all Seller tồn tại trong Hệ thống (Phân trang, sort theo bảng chữ cái, cho phép tìm kiếm theo Tên)
+                // (Email, FirstName, LastName, ImageUrl, TaxCode, CompanyName)
+// Get detail Seller By Id 
+                // và Map ra response như sau (Email, FirstName, LastName, ImageUrl, PhoneNumber,
+                                 // Address, DateOfBirth, TaxCode, CompanyName, CompanyAddress)
