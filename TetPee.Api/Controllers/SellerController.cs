@@ -1,8 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TetPee.Api.Extensions;
 using TetPee.Service.Seller;
 
 namespace TetPee.Api.Controllers;
 
+[Authorize(Policy = JwtExtensions.AdminPolicy)]
 [ApiController]
 [Route("[controller]")]
 public class SellerController: ControllerBase
@@ -13,7 +16,8 @@ public class SellerController: ControllerBase
     {
         _sellerService = sellerService;
     }
-
+    
+    // [Authorize(Policy = JwtExtensions.AdminPolicy)]
     [HttpGet("")]
     public async Task<IActionResult> GetSellers(int pageSize = 10, int pageIndex = 1, string? searchTerm = null)
     {

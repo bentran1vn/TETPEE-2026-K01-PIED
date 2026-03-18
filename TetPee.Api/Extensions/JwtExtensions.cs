@@ -28,7 +28,7 @@ public static class JwtExtensions
             {
                 options.TokenValidationParameters = new TokenValidationParameters()
                 {
-                    ValidateIssuer = true,
+                    ValidateIssuer = true, 
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
@@ -45,17 +45,17 @@ public static class JwtExtensions
             options.AddPolicy(AdminPolicy, policy =>
                 policy.RequireRole("Admin"));
             // [Authorize(Policy = JwtExtensions.AdminPolicy)]
-
+        
             options.AddPolicy(SellerPolicy, policy =>
                 policy.RequireRole("Seller"));
             // [Authorize(Policy = JwtExtensions.SellerPolicy)]
-
+        
             options.AddPolicy(UserPolicy, policy =>
                 policy.RequireRole("User"));
-
+        
             options.AddPolicy(SellerOrAdminPolicy, policy =>
                 policy.RequireRole("Seller", "Admin"));
-
+        
             // [Authorize(Policy = JwtExtensions.SellerOrAdminPolicy)]
         });
     }

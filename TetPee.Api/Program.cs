@@ -7,6 +7,7 @@ using UserService = TetPee.Service.User;
 using CategoryService = TetPee.Service.Category;
 using SellerService = TetPee.Service.Seller;
 using IdentityService = TetPee.Service.Identity;
+using JwtService = TetPee.Service.JwtService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,10 +25,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 
 builder.Services.AddJwtServices(builder.Configuration);
+builder.Services.AddSwaggerServices();
 
 builder.Services.AddScoped<UserService.IService, UserService.Service>();
 builder.Services.AddScoped<CategoryService.IService, CategoryService.Service>();
 builder.Services.AddScoped<SellerService.IService, SellerService.Service>();
+builder.Services.AddScoped<JwtService.IService, JwtService.Service>();
 builder.Services.AddScoped<IdentityService.IService, IdentityService.Service>();
 
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
@@ -38,8 +41,7 @@ app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerAPI();
 }
 
 app.UseAuthentication();

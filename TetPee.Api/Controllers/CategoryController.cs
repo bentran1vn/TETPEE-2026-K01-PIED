@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TetPee.Service.Category;
 
@@ -14,7 +15,8 @@ public class CategoryController: ControllerBase
     {
         _categoryService = categoryService;
     }
-
+    
+    [Authorize]
     [HttpGet("")]
     public async Task<IActionResult> GetCategory()
     {
