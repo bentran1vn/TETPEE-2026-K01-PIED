@@ -115,11 +115,13 @@ public class Service : IService
 
     public async Task<string> CreateSeller(Request.CreateSellerRequest request)
     {
-        var existingUser = _dbContext.Users.FirstOrDefault(x => x.Email == request.Email);
+        var existingUserQuery = _dbContext.Users.Where(x => x.Email == request.Email);
         
-        if(existingUser != null)
+        bool isExistUser = await existingUserQuery.AnyAsync();
+        
+        if(isExistUser)
         {
-            throw new Exception("Email already exists");
+            throw new Exception(Message.UserExistWithMail);
         }
         
         var user = new Repository.Entity.User()
@@ -151,9 +153,9 @@ public class Service : IService
 
             if (sellerResult > 0) return "Add Seller successfully";
             
-            return "Add Seller fail";
+            return Message.FailToAddSeller;
         }
         
-        return "Add Seller fail";
+        return Message.FailToAddSeller;
     }
 }
