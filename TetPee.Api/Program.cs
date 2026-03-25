@@ -7,6 +7,7 @@ using UserService = TetPee.Service.User;
 using CategoryService = TetPee.Service.Category;
 using SellerService = TetPee.Service.Seller;
 using IdentityService = TetPee.Service.Identity;
+using ProductService = TetPee.Service.Product;
 using JwtService = TetPee.Service.JwtService;
 using MediaService = TetPee.Service.MediaService;
 using CloudinaryService = TetPee.Service.CloudinaryService;
@@ -34,6 +35,7 @@ builder.Services.AddScoped<CategoryService.IService, CategoryService.Service>();
 builder.Services.AddScoped<SellerService.IService, SellerService.Service>();
 builder.Services.AddScoped<JwtService.IService, JwtService.Service>();
 builder.Services.AddScoped<IdentityService.IService, IdentityService.Service>();
+builder.Services.AddScoped<ProductService.IService, ProductService.Service>();
 builder.Services.AddScoped<MediaService.IService, CloudinaryService.Service>();
 
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
