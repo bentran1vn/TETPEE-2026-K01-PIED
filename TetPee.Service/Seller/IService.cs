@@ -9,4 +9,6 @@ public interface IService
     
     public Task<Response.GetSellerByIdResponse?> GetSellerById(
         Guid id);
+
+    public Task<string> CreateSeller(Request.CreateSellerRequest request);
 }

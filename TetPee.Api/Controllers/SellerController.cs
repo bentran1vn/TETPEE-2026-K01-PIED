@@ -5,7 +5,7 @@ using TetPee.Service.Seller;
 
 namespace TetPee.Api.Controllers;
 
-[Authorize(Policy = JwtExtensions.AdminPolicy)]
+// [Authorize(Policy = JwtExtensions.AdminPolicy)]
 [ApiController]
 [Route("[controller]")]
 public class SellerController: ControllerBase
@@ -29,6 +29,13 @@ public class SellerController: ControllerBase
     public async Task<IActionResult> GetSellerById(Guid id)
     {
         var result = await _sellerService.GetSellerById(id);
+        return Ok(result);
+    }
+    
+    [HttpPost("")]
+    public async Task<IActionResult> CreateSeller(Request.CreateSellerRequest request)
+    {
+        var result = await _sellerService.CreateSeller(request);
         return Ok(result);
     }
 }

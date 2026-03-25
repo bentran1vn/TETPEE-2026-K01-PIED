@@ -1,13 +1,15 @@
+using CloudinaryDotNet;
 using Microsoft.EntityFrameworkCore;
 using TetPee.Api.Extensions;
 using TetPee.Api.Middlewares;
 using TetPee.Repository;
-
 using UserService = TetPee.Service.User;
 using CategoryService = TetPee.Service.Category;
 using SellerService = TetPee.Service.Seller;
 using IdentityService = TetPee.Service.Identity;
 using JwtService = TetPee.Service.JwtService;
+using MediaService = TetPee.Service.MediaService;
+using CloudinaryService = TetPee.Service.CloudinaryService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +34,7 @@ builder.Services.AddScoped<CategoryService.IService, CategoryService.Service>();
 builder.Services.AddScoped<SellerService.IService, SellerService.Service>();
 builder.Services.AddScoped<JwtService.IService, JwtService.Service>();
 builder.Services.AddScoped<IdentityService.IService, IdentityService.Service>();
+builder.Services.AddScoped<MediaService.IService, CloudinaryService.Service>();
 
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 
