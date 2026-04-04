@@ -22,18 +22,19 @@ public class Service : IService
     public async Task<Response.IdentityResponse> Login(string email, string password)
     {
         var user = await _dbContext.Users
+            .Include(x => x.Seller)
             .FirstOrDefaultAsync(u => u.Email == email);
 
         if (user == null)
         {
             throw new Exception("User not found");
         }
-        
-        if(user.HashedPassword != password)
+
+        if (user.HashedPassword != password)
         {
             throw new Exception("Invalid password");
         }
-        
+
         var claims = new List<Claim>
         {
             new Claim("UserId", user.Id.ToString()),
@@ -41,12 +42,22 @@ public class Service : IService
             new Claim("Role", user.Role),
             new Claim(ClaimTypes.Role, user.Role),
             // Phải có claim này để phân quyền cho các API endpoint, nếu thiếu claim này thì sẽ không phân quyền được
-            new Claim(ClaimTypes.Expired, 
+            new Claim(ClaimTypes.Expired,
                 DateTimeOffset.UtcNow.AddMinutes(_jwtOption.ExpireMinutes).ToString()),
         };
-        
+
+        if (user.Role == "Seller")
+        {
+            // var seller = await _dbContext.Sellers.FirstOrDefaultAsync(x => x.UserId == user.Id);
+            // if (seller != null)
+            // {
+            //     claims.Add(new Claim("SellerId", seller.Id.ToString()));
+            // }
+            claims.Add(new Claim("SellerId", user.Seller!.Id.ToString()));
+        }
+
         var token = _jwtService.GenerateAccessToken(claims);
-        
+
         var result = new Response.IdentityResponse()
         {
             AccessToken = token

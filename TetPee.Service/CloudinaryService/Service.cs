@@ -14,10 +14,13 @@ public class Service : IService
     public Service(IConfiguration configuration)
     {
         configuration.GetSection(nameof(CloudinaryOptions)).Bind(_cloudinaryOptions);
-        _cloudinary = new Cloudinary(new Account(
-            _cloudinaryOptions.CloudName,
-            _cloudinaryOptions.ApiKey,
-            _cloudinaryOptions.ApiSecret));
+        _cloudinary = new Cloudinary(
+            new Account(
+                _cloudinaryOptions.CloudName,
+                _cloudinaryOptions.ApiKey,
+                _cloudinaryOptions.ApiSecret
+            )
+        );
     }
 
     public async Task<string> UploadImageAsync(IFormFile file)
@@ -30,7 +33,7 @@ public class Service : IService
         {
             throw new ArgumentException("File is not a valid image.", nameof(file));
         }
-        
+
         await using var stream = file.OpenReadStream();
         var uploadParams = new ImageUploadParams()
         {
@@ -39,11 +42,11 @@ public class Service : IService
         var uploadResult = await _cloudinary.UploadAsync(uploadParams);
         return uploadResult.SecureUrl.ToString();
     }
-    
+
     private bool IsImageFile(IFormFile file)
     {
         // This is a basic check. For more robust validation, consider using a library like MimeDetective
-        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif",".webp" };
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
         var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
         return allowedExtensions.Contains(fileExtension);
     }
