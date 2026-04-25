@@ -18,6 +18,7 @@ public class User: BaseEntity<Guid>, IAuditableEntity
     public int? Test { get; set; }
     
     public Seller? Seller { get; set; }
+    public Cart Cart { get; set; }
     public ICollection<Order> Orders { get; set; } = new List<Order>();
     
     public DateTimeOffset CreatedAt { get; set; }

@@ -35,6 +35,7 @@ public class AppDbContext : DbContext
     public DbSet<OrderDetail> OrderDetails { get; set; }
     public DbSet<ProductCategory> ProductCategories { get; set; }
     public DbSet<Category> Categories { get; set; }
+    public DbSet<CartDetail> CartDetails { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -82,6 +83,11 @@ public class AppDbContext : DbContext
             builder.HasOne(u => u.Seller)
                 .WithOne(s => s.User)
                 .HasForeignKey<Seller>(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            builder.HasOne(u => u.Cart)
+                .WithOne(s => s.User)
+                .HasForeignKey<Cart>(s => s.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
             
             // DeleteBehavior.Cascade: Khi một User bị xóa, thì Seller liên quan cũng sẽ bị xóa theo.
@@ -333,6 +339,27 @@ public class AppDbContext : DbContext
             };
             
             builder.HasData(orderDetails);
+        });
+
+        modelBuilder.Entity<Cart>(builder =>
+        {
+            builder.HasOne(u => u.User)
+                .WithOne(s => s.Cart)
+                .HasForeignKey<Cart>(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+        
+        modelBuilder.Entity<CartDetail>(builder =>
+        {
+            builder.HasOne(u => u.Cart)
+                .WithMany(s => s.CartDetails)
+                .HasForeignKey(s => s.CartId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            builder.HasOne(u => u.Product)
+                .WithMany(s => s.CartDetails)
+                .HasForeignKey(s => s.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

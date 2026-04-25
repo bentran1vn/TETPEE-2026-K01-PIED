@@ -1,3 +1,4 @@
+using TetPee.Service.DiscordService;
 using TetPee.Service.Models;
 
 namespace TetPee.Api.Middlewares;
@@ -6,13 +7,16 @@ public class GlobalExceptionHandlerMiddleware : IMiddleware
 {
     private readonly IHostEnvironment _environment;
     private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger;
+    private readonly IService _service;
 
     public GlobalExceptionHandlerMiddleware(
         IHostEnvironment environment,
-        ILogger<GlobalExceptionHandlerMiddleware> logger)
+        ILogger<GlobalExceptionHandlerMiddleware> logger,
+        IService service)
     {
         _environment = environment;
         _logger = logger;
+        _service = service;
     }
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -33,6 +37,13 @@ public class GlobalExceptionHandlerMiddleware : IMiddleware
             }
 
             var statusCode = MapStatusCode(ex);
+
+            await _service.SendExceptionAlertAsync(
+                context,
+                ex,
+                statusCode,
+                context.RequestAborted);
+
             context.Response.StatusCode = statusCode;
             context.Response.ContentType = "application/json";
 

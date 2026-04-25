@@ -14,6 +14,11 @@ using JwtService = TetPee.Service.JwtService;
 using MediaService = TetPee.Service.MediaService;
 using CloudinaryService = TetPee.Service.CloudinaryService;
 using MailService = TetPee.Service.MailService;
+using DiscordService = TetPee.Service.DiscordService;
+using CartService = TetPee.Service.Cart;
+using OrderService = TetPee.Service.Order;
+using Quartz;
+using TetPee.Service.BackgroundJobService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +47,29 @@ builder.Services.AddScoped<IdentityService.IService, IdentityService.Service>();
 builder.Services.AddScoped<ProductService.IService, ProductService.Service>();
 builder.Services.AddScoped<MediaService.IService, CloudinaryService.Service>();
 builder.Services.AddScoped<MailService.IService, MailService.Service>();
+builder.Services.AddScoped<CartService.IService, CartService.Service>();
+builder.Services.AddScoped<OrderService.IService, OrderService.Service>();
+builder.Services.AddHttpClient<DiscordService.IService, DiscordService.Service>();
+
+builder.Services.AddQuartz(options =>
+{
+    var jobKey = new JobKey(nameof(ProcessTransactionPendingJob));
+
+    options
+        .AddJob<ProcessTransactionPendingJob>(jobKey)
+        .AddTrigger(trigger =>
+            trigger
+                .ForJob(jobKey)
+                .WithSimpleSchedule(schedule => schedule
+                    .WithIntervalInMinutes(1)
+                    .RepeatForever()
+                )
+        );
+});
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true;
+});
 
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 
