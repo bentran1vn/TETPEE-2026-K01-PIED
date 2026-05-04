@@ -1,6 +1,7 @@
 using CloudinaryDotNet;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using DotNetEnv;
 using TetPee.Api.Extensions;
 using TetPee.Api.Middlewares;
 using TetPee.Repository;
@@ -19,6 +20,11 @@ using CartService = TetPee.Service.Cart;
 using OrderService = TetPee.Service.Order;
 using Quartz;
 using TetPee.Service.BackgroundJobService;
+
+Env.Load();
+
+var aspnetCoreEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", aspnetCoreEnv);
 
 var builder = WebApplication.CreateBuilder(args);
 
