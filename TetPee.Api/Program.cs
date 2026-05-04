@@ -107,10 +107,12 @@ app.UseStatusCodePages(async statusCodeContext =>
     await response.WriteAsJsonAsync(payload);
 });
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwaggerAPI();
-}
+// if (app.Environment.IsDevelopment())
+// {
+//     app.UseSwaggerAPI();
+// }
+
+app.UseSwaggerAPI();
 
 app.UseAuthentication();
 app.UseAuthorization();
