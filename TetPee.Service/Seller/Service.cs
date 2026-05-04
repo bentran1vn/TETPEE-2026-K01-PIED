@@ -41,7 +41,7 @@ public class Service : IService
                 FirstName = x.User.FirstName,
                 LastName = x.User.LastName,
                 ImageUrl = x.User.ImageUrl,
-                Role = x.User.Role,
+                Role = x.User.UserRoles.FirstOrDefault() != null ? x.User.UserRoles.FirstOrDefault()!.Role.Name : "User",
                 CompanyName = x.CompanyName,
                 TaxCode = x.TaxCode
             });
@@ -102,7 +102,7 @@ public class Service : IService
                 FirstName = x.User.FirstName,
                 LastName = x.User.LastName,
                 ImageUrl = x.User.ImageUrl,
-                Role = x.User.Role,
+                Role = x.User.UserRoles.FirstOrDefault() != null ? x.User.UserRoles.FirstOrDefault()!.Role.Name : "User",
                 CompanyName = x.CompanyName,
                 TaxCode = x.TaxCode,
                 PhoneNumber = x.User.PhoneNumber,
@@ -133,7 +133,6 @@ public class Service : IService
             FirstName = request.FirstName,
             LastName = request.LastName,
             HashedPassword = request.Password,
-            Role = "Seller"
         };
 
         _dbContext.Add(user);
@@ -142,6 +141,21 @@ public class Service : IService
 
         if (result > 0)
         {
+            var sellerRole = await _dbContext.Roles.FirstOrDefaultAsync(r => r.Name == "Seller");
+            if (sellerRole == null)
+            {
+                sellerRole = new Repository.Entity.Role { Name = "Seller" };
+                _dbContext.Roles.Add(sellerRole);
+                await _dbContext.SaveChangesAsync();
+            }
+
+            _dbContext.UserRoles.Add(new Repository.Entity.UserRole
+            {
+                UserId = user.Id,
+                RoleId = sellerRole.Id
+            });
+            await _dbContext.SaveChangesAsync();
+
             var seller = new Repository.Entity.Seller()
             {
                 CompanyAddress = request.CompanyAddress,

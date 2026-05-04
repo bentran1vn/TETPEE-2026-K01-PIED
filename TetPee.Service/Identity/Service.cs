@@ -23,6 +23,7 @@ public class Service : IService
     {
         var user = await _dbContext.Users
             .Include(x => x.Seller)
+            .Include(x => x.UserRoles).ThenInclude(ur => ur.Role)
             .FirstOrDefaultAsync(u => u.Email == email);
 
         if (user == null)
@@ -35,25 +36,29 @@ public class Service : IService
             throw new Exception("Invalid password");
         }
 
+        var roles = user.UserRoles.Select(ur => ur.Role.Name).ToList();
+        if (!roles.Any()) roles.Add("User");
+
         var claims = new List<Claim>
         {
             new Claim("UserId", user.Id.ToString()),
             new Claim("Email", user.Email),
-            new Claim("Role", user.Role),
-            new Claim(ClaimTypes.Role, user.Role),
             // Phải có claim này để phân quyền cho các API endpoint, nếu thiếu claim này thì sẽ không phân quyền được
             new Claim(ClaimTypes.Expired,
                 DateTimeOffset.UtcNow.AddMinutes(_jwtOption.ExpireMinutes).ToString()),
         };
 
-        if (user.Role == "Seller")
+        foreach (var role in roles)
         {
-            // var seller = await _dbContext.Sellers.FirstOrDefaultAsync(x => x.UserId == user.Id);
-            // if (seller != null)
-            // {
-            //     claims.Add(new Claim("SellerId", seller.Id.ToString()));
-            // }
-            claims.Add(new Claim("SellerId", user.Seller!.Id.ToString()));
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        // Optional: Keep a combined "Role" claim for simple lookups
+        claims.Add(new Claim("Role", string.Join(",", roles)));
+
+        if (roles.Contains("Seller") && user.Seller != null)
+        {
+            claims.Add(new Claim("SellerId", user.Seller.Id.ToString()));
         }
 
         var token = _jwtService.GenerateAccessToken(claims);

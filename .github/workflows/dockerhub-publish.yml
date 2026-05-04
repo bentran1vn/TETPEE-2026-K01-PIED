@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: demo-fsa-2026
+  IMAGE_NAME: tetpee-2026
 
 jobs:
   docker:
@@ -37,7 +37,7 @@ jobs:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
-            type=raw,value=lastest
+            type=sha,format=short
 
       - name: Build and push image
         uses: docker/build-push-action@v6
@@ -47,3 +47,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

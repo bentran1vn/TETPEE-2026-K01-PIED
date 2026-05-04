@@ -11,7 +11,7 @@ public class User: BaseEntity<Guid>, IAuditableEntity
     public string? PhoneNumber { get; set; } = null;
     public required string HashedPassword { get; set; }
     public string? Address { get; set; }
-    public string Role { get; set; } = "User"; // User, Seller, Admin
+    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     public bool IsVerify { get; set; } = false; // Khi user register, thì phải verify email hợp lệ
     public int VerifyCode { get; set; } // Mã verify gửi về email
     public string? DateOfBirth { get; set; } = null;

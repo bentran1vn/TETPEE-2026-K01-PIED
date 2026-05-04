@@ -43,7 +43,7 @@ public class Service : IService
             ImageUrl = x.ImageUrl,
             PhoneNumber = x.PhoneNumber,
             Address = x.Address,
-            Role = x.Role,
+            Role = x.UserRoles.FirstOrDefault() != null ? x.UserRoles.FirstOrDefault()!.Role.Name : "User",
         });
 
         var listResult = await selectedQuery.ToListAsync();
@@ -74,7 +74,7 @@ public class Service : IService
                 ImageUrl = x.ImageUrl,
                 PhoneNumber = x.PhoneNumber,
                 Address = x.Address,
-                Role = x.Role,
+                Role = x.UserRoles.FirstOrDefault() != null ? x.UserRoles.FirstOrDefault()!.Role.Name : "User",
             });
         
         var result = await selectedQuery.FirstOrDefaultAsync();

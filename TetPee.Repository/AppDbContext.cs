@@ -36,6 +36,10 @@ public class AppDbContext : DbContext
     public DbSet<ProductCategory> ProductCategories { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<CartDetail> CartDetails { get; set; }
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<Permission> Permissions { get; set; }
+    public DbSet<UserRole> UserRoles { get; set; }
+    public DbSet<RolePermission> RolePermissions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -73,11 +77,6 @@ public class AppDbContext : DbContext
             builder.Property(u => u.HashedPassword)
                 .IsRequired()
                 .HasMaxLength(500);
-            
-            builder.Property(u => u.Role)
-                .IsRequired()
-                .HasMaxLength(20)
-                .HasDefaultValue("User");
             
             // Relationship: User has one Seller (one-to-one)
             builder.HasOne(u => u.Seller)
@@ -359,6 +358,53 @@ public class AppDbContext : DbContext
             builder.HasOne(u => u.Product)
                 .WithMany(s => s.CartDetails)
                 .HasForeignKey(s => s.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ==================== RBAC Configuration ====================
+        modelBuilder.Entity<Role>(builder =>
+        {
+            builder.Property(r => r.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+            
+            builder.HasIndex(r => r.Name)
+                .IsUnique();
+        });
+
+        modelBuilder.Entity<Permission>(builder =>
+        {
+            builder.Property(p => p.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+            
+            builder.HasIndex(p => p.Name)
+                .IsUnique();
+        });
+
+        modelBuilder.Entity<UserRole>(builder =>
+        {
+            builder.HasOne(ur => ur.User)
+                .WithMany(u => u.UserRoles)
+                .HasForeignKey(ur => ur.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(ur => ur.Role)
+                .WithMany(r => r.UserRoles)
+                .HasForeignKey(ur => ur.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<RolePermission>(builder =>
+        {
+            builder.HasOne(rp => rp.Role)
+                .WithMany(r => r.RolePermissions)
+                .HasForeignKey(rp => rp.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(rp => rp.Permission)
+                .WithMany(p => p.RolePermissions)
+                .HasForeignKey(rp => rp.PermissionId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
