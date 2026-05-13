@@ -19,6 +19,7 @@ using DiscordService = TetPee.Service.DiscordService;
 using CartService = TetPee.Service.Cart;
 using OrderService = TetPee.Service.Order;
 using Quartz;
+using Resend;
 using TetPee.Service.BackgroundJobService;
 
 Env.Load();
@@ -38,8 +39,11 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-    )
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorCodesToAdd: null))
 );
 
 builder.Services.AddJwtServices(builder.Configuration);
@@ -52,10 +56,22 @@ builder.Services.AddScoped<JwtService.IService, JwtService.Service>();
 builder.Services.AddScoped<IdentityService.IService, IdentityService.Service>();
 builder.Services.AddScoped<ProductService.IService, ProductService.Service>();
 builder.Services.AddScoped<MediaService.IService, CloudinaryService.Service>();
-builder.Services.AddScoped<MailService.IService, MailService.Service>();
+// builder.Services.AddScoped<MailService.IService, MailService.Service>();
 builder.Services.AddScoped<CartService.IService, CartService.Service>();
 builder.Services.AddScoped<OrderService.IService, OrderService.Service>();
 builder.Services.AddHttpClient<DiscordService.IService, DiscordService.Service>();
+builder.Services.AddHttpClient<ResendClient>();
+builder.Services.Configure<ResendClientOptions>(o =>
+{
+    var resendOptions = builder.Configuration
+        .GetSection(nameof(MailService.ResendOptions))
+        .Get<MailService.ResendOptions>();
+    
+    o.ApiToken = resendOptions?.ApiToken
+                       ?? throw new InvalidOperationException("ResendOptions:ApiToken is missing.");
+});
+builder.Services.AddTransient<IResend, ResendClient>();
+builder.Services.AddScoped<MailService.IService, MailService.ResendService>();
 
 builder.Services.AddQuartz(options =>
 {

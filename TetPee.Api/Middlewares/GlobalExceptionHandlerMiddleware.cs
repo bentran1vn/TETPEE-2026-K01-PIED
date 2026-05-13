@@ -1,5 +1,6 @@
 using TetPee.Service.DiscordService;
 using TetPee.Service.Models;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace TetPee.Api.Middlewares;
 
@@ -49,7 +50,7 @@ public class GlobalExceptionHandlerMiddleware : IMiddleware
 
             var response = ApiResponseFactory.ErrorResponse(
                 message: ResolveClientMessage(ex, statusCode),
-                errors: _environment.IsDevelopment() ? new { detail = ex.Message } : null,
+                errors: BuildErrorDetails(ex, _environment.IsDevelopment()),
                 traceId: context.TraceIdentifier);
 
             await context.Response.WriteAsJsonAsync(response);
@@ -61,7 +62,8 @@ public class GlobalExceptionHandlerMiddleware : IMiddleware
         return ex switch
         {
             ArgumentException => StatusCodes.Status400BadRequest,
-            InvalidOperationException => StatusCodes.Status400BadRequest,
+            RetryLimitExceededException => StatusCodes.Status503ServiceUnavailable,
+            TimeoutException => StatusCodes.Status503ServiceUnavailable,
             UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
             KeyNotFoundException => StatusCodes.Status404NotFound,
             _ => StatusCodes.Status500InternalServerError
@@ -71,5 +73,21 @@ public class GlobalExceptionHandlerMiddleware : IMiddleware
     private static string ResolveClientMessage(Exception ex, int statusCode)
     {
         return statusCode >= 500 ? "An unexpected error occurred" : ex.Message;
+    }
+
+    private static object? BuildErrorDetails(Exception ex, bool isDevelopment)
+    {
+        if (!isDevelopment)
+        {
+            return null;
+        }
+
+        return new
+        {
+            detail = ex.Message,
+            exceptionType = ex.GetType().FullName,
+            innerDetail = ex.InnerException?.Message,
+            rootCauseDetail = ex.GetBaseException().Message
+        };
     }
 }
