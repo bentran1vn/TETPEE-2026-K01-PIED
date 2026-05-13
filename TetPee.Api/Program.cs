@@ -56,7 +56,7 @@ builder.Services.AddScoped<JwtService.IService, JwtService.Service>();
 builder.Services.AddScoped<IdentityService.IService, IdentityService.Service>();
 builder.Services.AddScoped<ProductService.IService, ProductService.Service>();
 builder.Services.AddScoped<MediaService.IService, CloudinaryService.Service>();
-// builder.Services.AddScoped<MailService.IService, MailService.Service>();
+builder.Services.AddScoped<MailService.IService, MailService.Service>();
 builder.Services.AddScoped<CartService.IService, CartService.Service>();
 builder.Services.AddScoped<OrderService.IService, OrderService.Service>();
 builder.Services.AddHttpClient<DiscordService.IService, DiscordService.Service>();
@@ -71,7 +71,7 @@ builder.Services.Configure<ResendClientOptions>(o =>
                        ?? throw new InvalidOperationException("ResendOptions:ApiToken is missing.");
 });
 builder.Services.AddTransient<IResend, ResendClient>();
-builder.Services.AddScoped<MailService.IService, MailService.ResendService>();
+// builder.Services.AddScoped<MailService.IService, MailService.ResendService>();
 
 builder.Services.AddQuartz(options =>
 {
